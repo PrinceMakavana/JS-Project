@@ -1,109 +1,163 @@
-function toggleNav() {
-    document.getElementById("sidebar").classList.toggle("active");
-    if (document.getElementById("sidebar").style.width == "95%") {
-        document.getElementById("sidebar").style.width = "0%";
+// Define UI Variables
+
+const form = document.querySelector('#task-form');
+const tasklist = document.querySelector('.collection');
+const clearBtn = document.querySelector('.clear-tasks');
+const filter = document.querySelector('#filter');
+const taskInput = document.querySelector('#task');
+
+
+// Load all Event listeners
+
+loadEventListeners();
+
+function loadEventListeners() {
+
+
+    //DOM Load Event
+    document.addEventListener('DOMContentLoaded', getTasks);
+
+    form.addEventListener('submit', addTask);
+
+    //Remove Task
+    tasklist.addEventListener('click', removeTask);
+
+    //Clear Task Events
+    clearBtn.addEventListener('click', clearTask);
+
+    //Fliter Task
+
+    filter.addEventListener('keyup', filterTask);
+}
+
+function addTask(e) {
+    if (taskInput.value === '') {
+        alert('Add a Task')
     } else {
-        document.getElementById("sidebar").style.width = "95%";
+
+        //Create Li Element
+
+        const li = document.createElement('li');
+        li.className = 'collection-item';
+
+        // text Node and Append to li
+
+        li.appendChild(document.createTextNode(taskInput.value));
+
+        //Create new Link Element
+
+        const link = document.createElement('a');
+        link.className = 'delete-item secondary-content';
+
+        link.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+
+        //Append to li
+
+        li.appendChild(link)
+
+        //Appent li to ul
+        tasklist.appendChild(li)
+
+        // Store in Local Storage
+        storeTaskInLocalStorage(taskInput.value);
+
+
+        //clear input
+        taskInput.value = "";
+
+    }
+
+    e.preventDefault()
+}
+
+function getTasks() {
+    let tasks;
+    if (localStorage.getItem('tasks') === null) {
+        tasks = []
+    } else {
+        tasks = JSON.parse(localStorage.getItem('tasks'));
+    }
+
+    tasks.forEach((task) => {
+        //Create Li Element
+
+        const li = document.createElement('li');
+        li.className = 'collection-item';
+
+        // text Node and Append to li
+
+        li.appendChild(document.createTextNode(task));
+
+        //Create new Link Element
+
+        const link = document.createElement('a');
+        link.className = 'delete-item secondary-content';
+        link.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+
+        //Append to li
+        li.appendChild(link)
+
+        //Appent li to ul
+        tasklist.appendChild(li)
+    })
+}
+function storeTaskInLocalStorage(task) {
+    let tasks;
+    if (localStorage.getItem('tasks') === null) {
+        tasks = []
+    } else {
+        tasks = JSON.parse(localStorage.getItem('tasks'));
+    }
+
+    tasks.push(task);
+
+    localStorage.setItem('tasks', JSON.stringify(tasks))
+}
+
+function removeTask(e) {
+
+
+    if (e.target.parentElement.classList.contains('delete-item')) {
+        removeTaskFormLocalStorage(e.target.parentElement.parentElement);
+        e.target.parentElement.parentElement.remove();
+
     }
 }
 
-
-// Header Position
-var prevScrollpos = window.pageYOffset;
-window.onscroll = function () {
-    var currrenPos = window.pageYOffset;
-    if (prevScrollpos > currrenPos || currrenPos > 3800) {
-        document.getElementById('header').style.top = "0";
-        document.getElementById('header').style.boxShadow = "0 0 1.5rem #00000033";
-        document.getElementById('header-container').style.border = "none";
+function removeTaskFormLocalStorage(taskItem) {
+    let tasks;
+    if (localStorage.getItem('tasks') === null) {
+        tasks = []
     } else {
-        document.getElementById('header').style.top = "-80px";
+        tasks = JSON.parse(localStorage.getItem('tasks'));
     }
-
-    if (window.pageYOffset == 0) {
-        document.getElementById('header').style.boxShadow = "none"
-        document.getElementById('header-container').style.borderBottom = '1px solid #9ea5a5'
-    }
-
-
-    prevScrollpos = currrenPos;
-}
-
-
-function active(positionName) {
-
-    let btns = document.querySelectorAll('.menu-item');
-    console.log(btns);
-    btns.forEach((element, inx) => {
-        if (element.classList.contains(positionName)) {
-            element.classList.add('active-section')
-        } else {
-            element.classList.remove('active-section')
+    tasks.forEach((task, index) => {
+        if (taskItem.textContent === task) {
+            tasks.splice(index, 1);
         }
-    });
-    document.getElementById("sidebar").style.width = "0%";
-    document.getElementById("sidebar").classList.toggle("active");
+    })
+    console.log(taskItem);
+
+    localStorage.setItem('tasks', JSON.stringify(tasks))
 }
-
-// img-slider
-
-// const next = document.querySelector(".next");
-// const prev = document.querySelector(".previous");
-
-// const numImg = document.querySelectorAll("img").length;
-// let currImg = 1;
-
-// let timeoutID;
-
-// next.addEventListener("click", () => {
-//     currImg++;
-//     clearTimeout(timeoutID);
-//     updateImage();
-// });
-
-// prev.addEventListener("click", () => {
-//     currImg--;
-//     clearTimeout(timeoutID);
-
-//     updateImage();
-// });
-
-// const imgcontainer = document.querySelector(".img-container");
-
-// function updateImage() {
-//     if (currImg > numImg) {
-//         currImg = 1;
-//     } else if (currImg < 1) {
-//         currImg = numImg;
-//     }
-//     imgcontainer.style.transform = `translateX(-${(currImg - 1) * 800}px)`;
-
-//     // timeoutID = setTimeout(() => {
-//     //     currImg++;
-//     //     updateImage();
-//     // }, 2000);
-// }
-
-// updateImage();
-
-let slideInx = 1;
-showSlides(slideInx);
-
-function plusSlides(n) {
-    showSlides(slideInx += n);
-}
-
-function currentSlide(n) {
-    showSlides(slideInx = n);
-}
-
-function showSlides(n) {
-    let i;
-    let slides = document.getElementsByClassName("mySlides");
-    if (n > slides.length) { slideInx = 1 }
-    if (n < 1) { slideInx = slides.length }
-    for (i = 0; i < slides.length; i++) {
-        slides[i].style.display = "none";
+function clearTask() {
+    while (tasklist.firstChild) {
+        tasklist.removeChild(tasklist.firstChild)
     }
-    slides[slideInx - 1].style.display = "block";
+
+    localStorage.clear();
+}
+
+function filterTask(e) {
+    const text = e.target.value.toLowerCase();
+    document.querySelectorAll('.collection-item').forEach((task) => {
+        const item = task.firstChild.textContent;
+        if (item.toLowerCase().indexOf(text) != -1) {
+            task.style.display = 'block'
+        } else {
+            task.style.display = 'none'
+        }
+
+    })
+
 }
