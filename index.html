@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book List</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/js/bootstrap.min.js"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <style>
+      .modal-content {
+        margin: auto;
+        display: block;
+        width: 80%;
+        max-width: 700px;
+      }
+
+      .modal-content {
+        -webkit-animation-name: zoom;
+        -webkit-animation-duration: 0.6s;
+        animation-name: zoom;
+        animation-duration: 0.6s;
+      }
+
+      /* 100% Image Width on Smaller Screens */
+      @media only screen and (max-width: 700px) {
+        .modal-content {
+          width: 100%;
+        }
+
+        .author,
+        .isbn {
+          display: none;
+        }
+
+        .input-form {
+          display: grid;
+        }
+
+        .navbar > .container-fluid {
+          justify-content: center;
+        }
+      }
+
+      #toastBox {
+        z-index: 100;
+      }
+
+      .search-table {
+        z-index: 11;
+      }
+
+      button:disabled {
+        opacity: 1 !important;
+      }
+
+      .sort-icon {
+        display: grid;
+        margin-left: 0.3rem;
+      }
+
+      #searchHere {
+        z-index: 50;
+      }
+
+      #noData {
+        margin: auto;
+        justify-content: center;
+      }
+
+      #noData img {
+        display: block;
+        margin: auto;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a href="#" class="navbar-brand">Book Manager</a>
+        <div class="d-flex">
+          <button class="local btn btn-outline-danger mr-3" id="clearAllData">
+            Clear
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="container-fluid">
+      <table class="table mb-0">
+        <tr class="input-form">
+          <form
+            action=""
+            class="was-validated"
+            id="bookForm"
+            enctype="multipart/form-data"
+            novalidate
+          >
+            <td>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Book Title"
+                maxlength="80"
+                name="title"
+                id="title"
+                required
+              />
+              <div class="valid-tooltip">Please fill out this field.</div>
+            </td>
+            <td>
+              <input
+                placeholder="Author Name"
+                maxlength="50"
+                type="text"
+                id="author"
+                class="form-control"
+                required
+              />
+            </td>
+            <td>
+              <input
+                placeholder="ISBN No."
+                maxlength="13"
+                type="number"
+                id="isbn"
+                class="form-control"
+                required
+              />
+            </td>
+            <td>
+              <input type="file" id="bookImg" class="form-control" required />
+            </td>
+            <td>
+              <button
+                type="submit"
+                id="toastbtn"
+                class="btn btn-outline-success w-100"
+              >
+                Submit
+              </button>
+            </td>
+          </form>
+        </tr>
+      </table>
+
+      <table class="table">
+        <thead class="table-dark">
+          <tr>
+            <th class="text-center">
+              <button class="btn btn-dark d-flex m-auto asc" id="sortById">
+                <p class="m-auto">Id</p>
+                <div class="sort-icon">
+                  <i class="fa-solid fa-caret-up" style="color: #ffffff"></i>
+                  <i class="fa-solid fa-caret-down" style="color: #ffffff"></i>
+                </div>
+              </button>
+            </th>
+            <th class="text-center">
+              <button class="btn btn-dark d-flex m-auto asc" id="sortByTitle">
+                <p class="m-auto">Title</p>
+                <div class="sort-icon">
+                  <i class="fa-solid fa-caret-up" style="color: #ffffff"></i>
+                  <i class="fa-solid fa-caret-down" style="color: #ffffff"></i>
+                </div>
+              </button>
+            </th>
+
+            <th class="text-center author">
+              <button class="btn btn-dark d-flex m-auto asc" id="sortByAuthor">
+                <p class="m-auto">Author</p>
+                <div class="sort-icon">
+                  <i class="fa-solid fa-caret-up" style="color: #ffffff"></i>
+                  <i class="fa-solid fa-caret-down" style="color: #ffffff"></i>
+                </div>
+              </button>
+            </th>
+
+            <th class="text-center isbn">
+              <button class="btn btn-dark d-flex m-auto asc" id="sortByIsbn">
+                <p class="m-auto">ISBN No.</p>
+                <div class="sort-icon">
+                  <i class="fa-solid fa-caret-up" style="color: #ffffff"></i>
+                  <i class="fa-solid fa-caret-down" style="color: #ffffff"></i>
+                </div>
+              </button>
+            </th>
+
+            <th class="text-center">
+              <button class="btn btn-dark d-flex m-auto asc" disabled>
+                <p class="m-auto">Profile Img</p>
+              </button>
+            </th>
+            <th class="text-center">
+              <button class="btn btn-dark d-flex m-auto asc" disabled>
+                <p class="m-auto">Update/Remove</p>
+              </button>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="text-center" id="bookList"></tbody>
+      </table>
+      <div id="noData">
+        <img src="./no_data.jpg" alt="" id="noDataImg" />
+      </div>
+    </div>
+    <div class="container mt-4">
+      <div class="row">
+        <div class="col align-self-center book-list-container"></div>
+      </div>
+
+      <!-- Update Form -->
+      <div
+        class="modal fade"
+        id="exampleModal"
+        tabindex="-1"
+        aria-labelledby="exampleModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Update</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+
+            <form action="" id="updateForm">
+              <div class="modal-body">
+                <div class="">
+                  <label for="title" class="form-label font-weight-bold"
+                    >Title</label
+                  >
+                  <input
+                    maxlength="80"
+                    type="text"
+                    id="update-title"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="">
+                  <label for="author" class="form-label font-weight-bold"
+                    >Author</label
+                  >
+                  <input
+                    maxlength="50"
+                    type="text"
+                    id="update-author"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="">
+                  <label for="isbn" class="form-label font-weight-bold"
+                    >ISBN No.</label
+                  >
+                  <input
+                    maxlength="13"
+                    type="number"
+                    id="update-isbn"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="">
+                  <label for="isbn" class="form-label font-weight-bold"
+                    >Profile</label
+                  >
+                  <input type="file" id="updateBookImg" class="form-control" />
+                </div>
+                <div class="">
+                  <input type="hidden" id="update-id" class="form-control" />
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+                <button type="submit" class="btn btn-primary">
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast Box -->
+      <div
+        id="toastBox"
+        class="z-3 mb-3 me-3 position-fixed bottom-0 end-0 toast-add toast text-white border-0"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+      >
+        <div class="d-flex">
+          <div id="toastBody" class="toast-body"></div>
+          <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+          ></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="container mt-4" id="searchHere">
+      <div class="search-table fixed-bottom bg-dark">
+        <div class="container-fluid">
+          <table class="table mb-0 border border-dark">
+            <tbody>
+              <tr>
+                <td></td>
+                <td>
+                  <input
+                    placeholder="Search Here"
+                    id="searchBox"
+                    class="form-control"
+                  />
+                </td>
+                <td>
+                  <button class="btn btn-primary form-control" id="clearFilter">
+                    Clear
+                  </button>
+                </td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>
