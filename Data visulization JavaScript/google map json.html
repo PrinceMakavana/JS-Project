@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>Google API JSON to Google Map</title>
+	<meta charset="utf-8">
+	<meta name="author" content="SidPro"/>
+	<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+	<meta name="description" content="Using Google API read JSON file and create Google Map."/>
+	<meta name="keywords" content="Google,API,Geo Chart,Covid19 Geo Chart,Covid19"/>
+	<script src="js/jquery-3.5.1.min.js"></script>
+	<script type="text/javascript" src="js/loader.js"></script>
+</head>
+<!-- Live link: https://sidpro-hash.github.io/HTML-Canvas/Data%20visulization%20JavaScript/google%20map%20json.html -->
+<body>
+	<h2>Read JSON file and create Google Map of Total COVID-19 cases in country [Date:01/04/2021]</h2>
+	<div id="chart" style="width: 900px; height: 500px"></div>
+</body>
+    <script>
+    // Visualization API with the 'corechart' package.
+    google.charts.load('current', {
+        'packages':['geochart'],
+        // Note: you will need to get a mapsApiKey for your project.
+        // See: https://developers.google.com/chart/interactive/docs/basic_load_libs#load-settings
+        'mapsApiKey': 'AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY'
+      });
+
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+        $.ajax({
+            url: "data/Covid-19.json",
+            dataType: "json",
+            type: "GET",
+            contentType: "application/json; charset=utf-8",
+            success: function (data) {
+                var arr = [['Country', 'Total COVID-19 Cases']];    
+
+                
+                $.each(data, function (k, v) {
+                    arr.push([v.city, v.n]);
+                });
+		var Data = google.visualization.arrayToDataTable(arr);
+		//var Data = google.visualization.arrayToDataTable(covid19); 
+              
+                var options = {
+					colorAxis: {colors: ['#9bbb58','#4f81bc','#c0504e']},
+					backgroundColor: '#81d4fa',
+					defaultColor: '#f5f5f5',
+					tooltip:{textStyle: {color: '#871b47'}, showColorCode: true}
+				};
+
+               
+                
+				
+                var chart = new google.visualization.GeoChart(document.getElementById('chart'));
+                chart.draw(Data, options);      
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert('File Error or Cross-origin police Error');
+            }
+        });
+    }
+</script>
+</html>
+  
